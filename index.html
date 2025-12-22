@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>German Reading Practice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: system-ui, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 20px;
+}
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+h1 {
+    text-align: center;
+    margin-top: 0;
+    color: #1f2937;
+}
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+select, button {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: white;
+}
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+button:hover {
+    background: #1d4ed8;
+}
+.output {
+    margin-top: 20px;
+}
+.german-text {
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+.word {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    border-bottom: 2px dotted #93c5fd;
+}
+.word:hover {
+    background: #dbeafe;
+}
+.translation-box {
+    background: #dcfce7;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid #16a34a;
+}
+.vocab-box {
+    background: #f0f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid #0ea5e9;
+}
+.vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+.vocab-item {
+    padding: 8px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #d1d5db;
+}
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #6b7280;
+}
+.error {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111827;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: none;
+}
+.popup h3 {
+    margin-top: 0;
+    color: #60a5fa;
+}
+.popup button {
+    margin-top: 8px;
+    width: 100%;
+}
+.popup button.secondary {
+    background: #6b7280;
+}
+.popup button.secondary:hover {
+    background: #4b5563;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1>🇩🇪 German Reading Practice</h1>
+
+    <div class="controls">
+        <select id="level">
+            <option>A1</option>
+            <option>A1.9</option>
+            <option>A2</option>
+            <option>B1</option>
+        </select>
+
+        <select id="length">
+            <option value="short">Short</option>
+            <option value="medium">Medium</option>
+            <option value="long">Long</option>
+        </select>
+
+        <select id="model">
+            <option value="openai">openai</option>
+            <option value="openai-fast">openai-fast</option>
+            <option value="bidara">bidara</option>
+            <option value="chickytutor">chickytutor</option>
+        </select>
+
+        <button onclick="generate()">Generate German Text</button>
+    </div>
+
+    <div id="output" class="output">
+        <div class="loading" id="loading">Click "Generate German Text" to start</div>
+    </div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closePopup()"></div>
+<div id="popup" class="popup">
+    <h3 id="popupWord"></h3>
+    <div id="popupMeaning"></div>
+    <button onclick="speakWord()">🔊 Pronounce</button>
+    <button onclick="closePopup()" class="secondary">Close</button>
+</div>
+
+<script>
+let vocab = {};
+let paragraphText = "";
+let currentWord = "";
+let englishTranslation = "";
+
+async function generate() {
+    const level = document.getElementById("level").value;
+    const length = document.getElementById("length").value;
+    const model = document.getElementById("model").value;
+
+    const prompt = `Return ONLY valid JSON.
+German level: ${level}
+Length: ${length}
+
+Generate a German paragraph about daily life.
+Create a vocabulary dictionary with ALL important words.
+Also provide the English translation.
+
+Format:
+{
+  "paragraph": "German paragraph text",
+  "vocabulary": {
+    "word1": "English meaning",
+    "compound_word": "English meaning"
+  },
+  "english_translation": "Full English translation here"
+}
+
+Rules:
+- Vocabulary must include each and every word from the paragraph
+- Translation should be accurate
+- No explanations outside JSON`;
+
+    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=${model}`;
+
+    document.getElementById("output").innerHTML = '<div class="loading">Generating German text with vocabulary and translation...</div>';
+    
+    try {
+        const res = await fetch(url);
+        let text = await res.text();
+        
+        // Clean the response - extract JSON
+        text = text.trim();
+        const jsonStart = text.indexOf('{');
+        const jsonEnd = text.lastIndexOf('}') + 1;
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+            text = text.substring(jsonStart, jsonEnd);
+        }
+        
+        const data = JSON.parse(text);
+
+        paragraphText = data.paragraph || "";
+        vocab = data.vocabulary || {};
+        englishTranslation = data.english_translation || "";
+        
+        if (!paragraphText) {
+            throw new Error("No paragraph generated");
+        }
+
+        renderAll();
+    } catch (e) {
+        console.error("Error:", e);
+        document.getElementById("output").innerHTML = `
+            <div class="error">
+                <p><strong>Error:</strong> Could not generate content.</p>
+                <p>Try again with a different model (openai-fast works best).</p>
+            </div>
+        `;
+    }
+}
+
+function renderAll() {
+    const output = document.getElementById("output");
+    output.innerHTML = "";
+
+    // 1. German Paragraph
+    const germanDiv = document.createElement("div");
+    germanDiv.className = "german-text";
+    germanDiv.id = "germanParagraph";
+    
+    // Build vocab list for matching
+    const vocabKeys = Object.keys(vocab).sort((a, b) => b.length - a.length);
+    
+    let index = 0;
+    while (index < paragraphText.length) {
+        if (!/\w/.test(paragraphText[index])) {
+            germanDiv.appendChild(document.createTextNode(paragraphText[index]));
+            index++;
+            continue;
+        }
+
+        // Try to match compound words
+        let matched = null;
+        let matchedKey = null;
+        
+        for (const key of vocabKeys) {
+            if (paragraphText.substring(index, index + key.length).toLowerCase() === key.toLowerCase()) {
+                matched = paragraphText.substring(index, index + key.length);
+                matchedKey = key;
+                break;
+            }
+        }
+
+        if (matched) {
+            const span = document.createElement("span");
+            span.className = "word";
+            span.textContent = matched;
+            span.title = "Click for pronunciation";
+            span.dataset.word = matched;
+            span.dataset.vocabKey = matchedKey;
+            span.onclick = () => showWordPopup(matched, matchedKey);
+            germanDiv.appendChild(span);
+            index += matched.length;
+        } else {
+            const match = paragraphText.substring(index).match(/^[\wäöüßÄÖÜ]+/);
+            if (match) {
+                const word = match[0];
+                const span = document.createElement("span");
+                span.className = "word";
+                span.textContent = word;
+                span.title = "Click for pronunciation";
+                span.dataset.word = word;
+                span.onclick = () => showWordPopup(word, word.toLowerCase());
+                germanDiv.appendChild(span);
+                index += word.length;
+            } else {
+                germanDiv.appendChild(document.createTextNode(paragraphText[index]));
+                index++;
+            }
+        }
+    }
+    
+    output.appendChild(germanDiv);
+
+    // 2. English Translation (ALWAYS SHOWN)
+    if (englishTranslation) {
+        const translationDiv = document.createElement("div");
+        translationDiv.className = "translation-box";
+        translationDiv.innerHTML = `
+            <h3 style="margin-top: 0; color: #166534;">📖 English Translation</h3>
+            <p>${englishTranslation}</p>
+        `;
+        output.appendChild(translationDiv);
+    }
+
+    // 3. Vocabulary List (ALWAYS SHOWN)
+    if (Object.keys(vocab).length > 0) {
+        const vocabDiv = document.createElement("div");
+        vocabDiv.className = "vocab-box";
+        vocabDiv.innerHTML = `
+            <h3 style="margin-top: 0; color: #0c4a6e;">📚 Vocabulary List</h3>
+            <div class="vocab-grid">
+        `;
+        
+        const vocabGrid = document.createElement("div");
+        vocabGrid.className = "vocab-grid";
+        
+        Object.entries(vocab).forEach(([german, english]) => {
+            const item = document.createElement("div");
+            item.className = "vocab-item";
+            item.innerHTML = `
+                <strong>${german}</strong><br>
+                <small style="color: #4b5563;">${english}</small>
+            `;
+            vocabGrid.appendChild(item);
+        });
+        
+        vocabDiv.appendChild(vocabGrid);
+        output.appendChild(vocabDiv);
+    }
+}
+
+function showWordPopup(word, vocabKey) {
+    currentWord = word;
+    
+    // Find meaning
+    let meaning = vocab[vocabKey] || vocab[word] || vocab[word.toLowerCase()] || "No translation available";
+    
+    document.getElementById("popupWord").textContent = `🇩🇪 ${word}`;
+    document.getElementById("popupMeaning").innerHTML = `
+        <div style="margin: 10px 0; padding: 10px; background: #1f2937; border-radius: 6px;">
+            <strong style="color: #93c5fd;">English:</strong><br>
+            ${meaning}
+        </div>
+    `;
+    
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("popup").style.display = "block";
+}
+
+function closePopup() {
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("popup").style.display = "none";
+}
+
+function speakWord() {
+    if (!currentWord) return;
+    const u = new SpeechSynthesisUtterance(currentWord);
+    u.lang = "de-DE";
+    u.rate = 0.8;
+    speechSynthesis.speak(u);
+}
+</script>
+</body>
+</html>
