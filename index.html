@@ -155,9 +155,12 @@ button:hover {
     <div class="controls">
         <select id="level">
             <option>A1</option>
-            <option>A1.9</option>
             <option>A2</option>
             <option>B1</option>
+            <option>B1.5</option>
+            <option>B2</option>
+            <option>C1</option>
+            <option>C2</option>
         </select>
 
         <select id="length">
@@ -200,29 +203,37 @@ async function generate() {
     const length = document.getElementById("length").value;
     const model = document.getElementById("model").value;
 
+const uid =
+  Date.now().toString(36) +
+  '-' +
+  Math.random().toString(36).slice(2, 8);
+
     const prompt = `Return ONLY valid JSON.
-German level: ${level}
-Length: ${length}
+    German level: ${level}
+    Length: ${length}
 
-Generate a German paragraph about daily life.
-Create a vocabulary dictionary with ALL important words.
-Also provide the English translation.
+    Generate a German paragraph about daily life.
+    Create a vocabulary dictionary with ALL important words.
+    Also provide the English translation.
 
-Format:
-{
-  "paragraph": "German paragraph text",
-  "vocabulary": {
-    "word1": "English meaning",
-    "compound_word": "English meaning"
-  },
-  "english_translation": "Full English translation here"
-}
+    Format:
+    {
+    "paragraph": "German paragraph text",
+    "vocabulary": {
+        "word1": "English meaning",
+        "compound_word": "English meaning"
+    },
+    "english_translation": "Full English translation here"
+    }
 
-Rules:
-- Vocabulary must include each and every word from the paragraph
-- Translation should be accurate
-- No explanations outside JSON`;
+    Rules:
+    - Vocabulary must include each and every word from the paragraph
+    - Translation should be accurate
+    - No explanations outside JSON
 
+    UID: ${uid}`;
+
+   
     const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=${model}`;
 
     document.getElementById("output").innerHTML = '<div class="loading">Generating German text with vocabulary and translation...</div>';
