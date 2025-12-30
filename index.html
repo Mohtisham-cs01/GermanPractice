@@ -11,6 +11,11 @@ body {
     background: #f3f4f6;
     margin: 0;
     padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+body.dark-mode {
+    background: #111827;
+    color: #f9fafb;
 }
 .container {
     max-width: 900px;
@@ -19,11 +24,19 @@ body {
     padding: 25px;
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+.dark-mode .container {
+    background: #1f2937;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
 }
 h1 {
     text-align: center;
     margin-top: 0;
     color: #1f2937;
+}
+.dark-mode h1 {
+    color: #f9fafb;
 }
 .controls {
     display: grid;
@@ -37,6 +50,13 @@ select, button {
     border-radius: 8px;
     border: 1px solid #d1d5db;
     background: white;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.dark-mode select,
+.dark-mode button:not(.tts-control) {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
 }
 button {
     background: #2563eb;
@@ -48,6 +68,9 @@ button {
 button:hover {
     background: #1d4ed8;
 }
+.dark-mode button:hover:not(.tts-control) {
+    background: #1e40af;
+}
 .output {
     margin-top: 20px;
 }
@@ -58,6 +81,10 @@ button:hover {
     padding: 20px;
     background: #f9fafb;
     border-radius: 10px;
+    transition: background-color 0.3s;
+}
+.dark-mode .german-text {
+    background: #374151;
 }
 .word {
     cursor: pointer;
@@ -69,12 +96,19 @@ button:hover {
 .word:hover {
     background: #dbeafe;
 }
+.dark-mode .word:hover {
+    background: #1e40af;
+}
 .translation-box {
     background: #dcfce7;
     padding: 15px;
     border-radius: 8px;
     margin: 20px 0;
     border-left: 4px solid #16a34a;
+    transition: background-color 0.3s;
+}
+.dark-mode .translation-box {
+    background: #064e3b;
 }
 .vocab-box {
     background: #f0f9ff;
@@ -82,6 +116,10 @@ button:hover {
     border-radius: 8px;
     margin: 20px 0;
     border-left: 4px solid #0ea5e9;
+    transition: background-color 0.3s;
+}
+.dark-mode .vocab-box {
+    background: #0c4a6e;
 }
 .vocab-grid {
     display: grid;
@@ -94,11 +132,20 @@ button:hover {
     background: white;
     border-radius: 5px;
     border: 1px solid #d1d5db;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.dark-mode .vocab-item {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #f9fafb;
 }
 .loading {
     text-align: center;
     padding: 30px;
     color: #6b7280;
+}
+.dark-mode .loading {
+    color: #d1d5db;
 }
 .error {
     background: #fee2e2;
@@ -106,6 +153,10 @@ button:hover {
     padding: 15px;
     border-radius: 8px;
     margin: 15px 0;
+    transition: background-color 0.3s;
+}
+.dark-mode .error {
+    background: #7f1d1d;
 }
 .popup {
     position: fixed;
@@ -120,6 +171,9 @@ button:hover {
     z-index: 1000;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     display: none;
+}
+.dark-mode .popup {
+    background: #030712;
 }
 .popup h3 {
     margin-top: 0;
@@ -145,10 +199,209 @@ button:hover {
     z-index: 999;
     display: none;
 }
+
+/* Dark Mode Toggle - Made smaller */
+.dark-mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6b7280;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+.dark-mode-toggle:hover {
+    background: rgba(0,0,0,0.1);
+}
+.dark-mode .dark-mode-toggle:hover {
+    background: rgba(255,255,255,0.1);
+}
+.dark-mode .dark-mode-toggle {
+    color: #d1d5db;
+}
+
+/* Slim Floating TTS Player - COMPACT VERSION */
+.tts-player {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 8px 15px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    min-width: 300px;
+    max-width: 500px;
+}
+.dark-mode .tts-player {
+    background: #374151;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Compact TTS Controls */
+.tts-control {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.tts-control:hover {
+    background: #1d4ed8;
+}
+.tts-control:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+.tts-stop {
+    background: #dc2626;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+.tts-stop:hover {
+    background: #b91c1c;
+}
+
+/* Progress Bar - Thin */
+.tts-progress-container {
+    flex: 1;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+.dark-mode .tts-progress-container {
+    background: #4b5563;
+}
+.tts-progress-bar {
+    height: 100%;
+    background: #2563eb;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* Speed Control - Minimal */
+.tts-speed {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+.dark-mode .tts-speed {
+    color: #d1d5db;
+}
+.tts-speed select {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    min-width: 60px;
+}
+.dark-mode .tts-speed select {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #f9fafb;
+}
+
+/* Time Display - Minimal */
+.tts-time {
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: center;
+}
+.dark-mode .tts-time {
+    color: #d1d5db;
+}
+
+/* TTS Status Indicator */
+.tts-status {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc2626;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    display: none;
+    white-space: nowrap;
+}
+.tts-status.error {
+    background: #dc2626;
+}
+.tts-status.info {
+    background: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tts-player {
+        min-width: 280px;
+        max-width: 90%;
+        padding: 6px 12px;
+        gap: 6px;
+    }
+    .tts-control {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    .tts-stop {
+        width: 28px;
+        height: 28px;
+    }
+    .tts-speed {
+        font-size: 11px;
+    }
+    .tts-speed select {
+        font-size: 11px;
+        min-width: 50px;
+        padding: 3px 6px;
+    }
+    .tts-time {
+        font-size: 10px;
+        min-width: 50px;
+    }
+}
 </style>
 </head>
 
 <body>
+<div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+    <span id="darkModeIcon">🌙</span>
+</div>
+
 <div class="container">
     <h1>🇩🇪 German Reading Practice</h1>
 
@@ -184,6 +437,31 @@ button:hover {
     </div>
 </div>
 
+<!-- Slim Floating TTS Player -->
+<div class="tts-player" id="ttsPlayer">
+    <div class="tts-status" id="ttsStatus"></div>
+    <button class="tts-control" id="ttsPlayBtn" onclick="toggleTTS()" title="Play/Pause">▶️</button>
+    <button class="tts-control tts-stop" id="ttsStopBtn" onclick="stopTTS()" disabled title="Stop">⏹️</button>
+    
+    <div class="tts-progress-container">
+        <div class="tts-progress-bar" id="ttsProgress"></div>
+    </div>
+    
+    <div class="tts-time" id="ttsTime">00:00</div>
+    
+    <div class="tts-speed">
+        <span>Speed:</span>
+        <select id="ttsSpeed" onchange="changeTTSSpeed()" title="Speech speed">
+            <option value="0.7">0.7x</option>
+            <option value="0.8">0.8x</option>
+            <option value="0.9" selected>0.9x</option>
+            <option value="1">1x</option>
+            <option value="1.1">1.1x</option>
+            <option value="1.2">1.2x</option>
+        </select>
+    </div>
+</div>
+
 <div id="overlay" class="overlay" onclick="closePopup()"></div>
 <div id="popup" class="popup">
     <h3 id="popupWord"></h3>
@@ -197,16 +475,106 @@ let vocab = {};
 let paragraphText = "";
 let currentWord = "";
 let englishTranslation = "";
+let ttsPlaying = false;
+let ttsUtterance = null;
+let sentences = [];
+let currentSentenceIndex = 0;
+let ttsRate = 0.9;
+let ttsSupported = false;
+let voicesLoaded = false;
+let germanVoice = null;
+let timerInterval = null;
+let startTime = 0;
+let elapsedTime = 0;
+
+// Dark mode
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('darkModeIcon');
+    if (document.body.classList.contains('dark-mode')) {
+        icon.textContent = '☀️';
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        icon.textContent = '🌙';
+        localStorage.setItem('darkMode', 'disabled');
+    }
+}
+
+// Load dark mode preference
+if (localStorage.getItem('darkMode') === 'enabled') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeIcon').textContent = '☀️';
+}
+
+// Check TTS support
+function checkTTSsupport() {
+    if (!('speechSynthesis' in window)) {
+        showTTSstatus('Speech synthesis not supported in your browser', 'error');
+        return false;
+    }
+    
+    ttsSupported = true;
+    
+    // Load voices
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+        findGermanVoice(voices);
+        voicesLoaded = true;
+    } else {
+        // Voices might be loaded async
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            const voices = speechSynthesis.getVoices();
+            findGermanVoice(voices);
+            voicesLoaded = true;
+        });
+    }
+    
+    return true;
+}
+
+function findGermanVoice(voices) {
+    // Try to find a German voice
+    germanVoice = voices.find(voice => 
+        voice.lang.startsWith('de') || 
+        voice.lang === 'de-DE' || 
+        voice.lang === 'de' ||
+        voice.name.toLowerCase().includes('german')
+    );
+    
+    if (!germanVoice && voices.length > 0) {
+        // Fallback to any available voice
+        germanVoice = voices[0];
+    }
+    
+    if (germanVoice) {
+        console.log('Using voice:', germanVoice.name, germanVoice.lang);
+    } else {
+        console.log('No voices available');
+    }
+}
+
+function showTTSstatus(message, type = 'info') {
+    const statusEl = document.getElementById('ttsStatus');
+    statusEl.textContent = message;
+    statusEl.className = `tts-status ${type}`;
+    statusEl.style.display = 'block';
+    
+    setTimeout(() => {
+        statusEl.style.display = 'none';
+    }, 3000);
+}
 
 async function generate() {
+    // Check TTS support
+    if (!checkTTSsupport()) {
+        showTTSstatus('Speech synthesis not available', 'error');
+    }
+    
     const level = document.getElementById("level").value;
     const length = document.getElementById("length").value;
     const model = document.getElementById("model").value;
 
-const uid =
-  Date.now().toString(36) +
-  '-' +
-  Math.random().toString(36).slice(2, 8);
+    const uid = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 
     const prompt = `Return ONLY valid JSON.
     German level: ${level}
@@ -233,7 +601,6 @@ const uid =
 
     UID: ${uid}`;
 
-   
     const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=${model}`;
 
     document.getElementById("output").innerHTML = '<div class="loading">Generating German text with vocabulary and translation...</div>';
@@ -261,7 +628,17 @@ const uid =
             throw new Error("No paragraph generated");
         }
 
+        // Split into sentences for TTS
+        sentences = paragraphText.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+        
         renderAll();
+        
+        // Show slim TTS player
+        document.getElementById('ttsPlayer').style.display = 'flex';
+        
+        // Reset TTS state
+        stopTTS();
+        
     } catch (e) {
         console.error("Error:", e);
         document.getElementById("output").innerHTML = `
@@ -374,6 +751,178 @@ function renderAll() {
     }
 }
 
+// TTS Functions
+function toggleTTS() {
+    if (!ttsSupported) {
+        showTTSstatus('Speech synthesis not supported', 'error');
+        return;
+    }
+    
+    if (!voicesLoaded) {
+        showTTSstatus('Loading voices...', 'info');
+        setTimeout(() => {
+            if (voicesLoaded) {
+                toggleTTS();
+            } else {
+                showTTSstatus('Failed to load voices', 'error');
+            }
+        }, 1000);
+        return;
+    }
+    
+    if (ttsPlaying) {
+        pauseTTS();
+    } else {
+        playTTS();
+    }
+}
+
+function playTTS() {
+    if (!sentences.length) {
+        showTTSstatus('No text to read', 'error');
+        return;
+    }
+    
+    ttsPlaying = true;
+    document.getElementById('ttsPlayBtn').textContent = '⏸️';
+    document.getElementById('ttsPlayBtn').disabled = false;
+    document.getElementById('ttsStopBtn').disabled = false;
+    document.getElementById('ttsPlayBtn').title = 'Pause';
+    
+    if (currentSentenceIndex >= sentences.length) {
+        currentSentenceIndex = 0;
+    }
+    
+    startTime = Date.now() - elapsedTime;
+    startTimer();
+    speakCurrentSentence();
+}
+
+function pauseTTS() {
+    ttsPlaying = false;
+    document.getElementById('ttsPlayBtn').textContent = '▶️';
+    document.getElementById('ttsPlayBtn').title = 'Play';
+    
+    if (speechSynthesis.speaking) {
+        speechSynthesis.pause();
+    }
+    
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        elapsedTime = Date.now() - startTime;
+    }
+}
+
+function stopTTS() {
+    ttsPlaying = false;
+    currentSentenceIndex = 0;
+    document.getElementById('ttsPlayBtn').textContent = '▶️';
+    document.getElementById('ttsPlayBtn').title = 'Play';
+    document.getElementById('ttsPlayBtn').disabled = false;
+    document.getElementById('ttsStopBtn').disabled = true;
+    document.getElementById('ttsProgress').style.width = '0%';
+    document.getElementById('ttsTime').textContent = '00:00';
+    
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+    
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    
+    elapsedTime = 0;
+    startTime = 0;
+}
+
+function speakCurrentSentence() {
+    if (!ttsPlaying || currentSentenceIndex >= sentences.length) {
+        ttsPlaying = false;
+        document.getElementById('ttsPlayBtn').textContent = '▶️';
+        document.getElementById('ttsPlayBtn').title = 'Play';
+        document.getElementById('ttsStopBtn').disabled = true;
+        document.getElementById('ttsProgress').style.width = '100%';
+        
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        return;
+    }
+    
+    const sentence = sentences[currentSentenceIndex].trim();
+    
+    // Update progress
+    const progress = ((currentSentenceIndex + 1) / sentences.length) * 100;
+    document.getElementById('ttsProgress').style.width = `${progress}%`;
+    
+    ttsUtterance = new SpeechSynthesisUtterance(sentence);
+    ttsUtterance.lang = 'de-DE';
+    ttsUtterance.rate = ttsRate;
+    
+    // Use German voice if available
+    if (germanVoice) {
+        ttsUtterance.voice = germanVoice;
+    }
+    
+    ttsUtterance.onstart = () => {
+        showTTSstatus(`Reading sentence ${currentSentenceIndex + 1}/${sentences.length}`, 'info');
+    };
+    
+    ttsUtterance.onend = () => {
+        currentSentenceIndex++;
+        if (ttsPlaying) {
+            // Small pause between sentences
+            setTimeout(() => speakCurrentSentence(), 300);
+        }
+    };
+    
+    ttsUtterance.onerror = (event) => {
+        console.error('TTS Error:', event);
+        showTTSstatus('Error reading text', 'error');
+        currentSentenceIndex++;
+        if (ttsPlaying) {
+            setTimeout(() => speakCurrentSentence(), 500);
+        }
+    };
+    
+    try {
+        speechSynthesis.speak(ttsUtterance);
+    } catch (error) {
+        console.error('Speech synthesis error:', error);
+        showTTSstatus('Failed to speak', 'error');
+        ttsPlaying = false;
+        document.getElementById('ttsPlayBtn').textContent = '▶️';
+        document.getElementById('ttsStopBtn').disabled = true;
+    }
+}
+
+function startTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+    
+    timerInterval = setInterval(() => {
+        if (startTime > 0) {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+            const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('ttsTime').textContent = `${minutes}:${seconds}`;
+        }
+    }, 1000);
+}
+
+function changeTTSSpeed() {
+    ttsRate = parseFloat(document.getElementById('ttsSpeed').value);
+    if (ttsUtterance && speechSynthesis.speaking) {
+        // Cancel and restart with new speed
+        speechSynthesis.cancel();
+        setTimeout(() => speakCurrentSentence(), 100);
+    }
+}
+
 function showWordPopup(word, vocabKey) {
     currentWord = word;
     
@@ -399,11 +948,54 @@ function closePopup() {
 
 function speakWord() {
     if (!currentWord) return;
+    
+    if (!ttsSupported) {
+        showTTSstatus('Speech synthesis not available', 'error');
+        return;
+    }
+    
     const u = new SpeechSynthesisUtterance(currentWord);
     u.lang = "de-DE";
-    u.rate = 0.8;
-    speechSynthesis.speak(u);
+    u.rate = ttsRate;
+    
+    if (germanVoice) {
+        u.voice = germanVoice;
+    }
+    
+    u.onend = () => {
+        // Word spoken successfully
+    };
+    
+    u.onerror = (event) => {
+        console.error('Word pronunciation error:', event);
+        showTTSstatus('Cannot pronounce word', 'error');
+    };
+    
+    try {
+        speechSynthesis.speak(u);
+    } catch (error) {
+        console.error('Speech synthesis error:', error);
+        showTTSstatus('Failed to speak', 'error');
+    }
 }
+
+// Initialize TTS support check on page load
+window.addEventListener('load', () => {
+    checkTTSsupport();
+    
+    // Load voices if they become available
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            const voices = speechSynthesis.getVoices();
+            findGermanVoice(voices);
+            voicesLoaded = true;
+        });
+    } else {
+        const voices = speechSynthesis.getVoices();
+        findGermanVoice(voices);
+        voicesLoaded = true;
+    }
+});
 </script>
 </body>
 </html>
