@@ -386,8 +386,27 @@ button:hover {
     100% { opacity: 0; }
 }
 
+/* Topic indicator */
+.topic-indicator {
+    display: inline-block;
+    background: #7c3aed;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    margin-left: 10px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+.dark-mode .topic-indicator {
+    background: #8b5cf6;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    .controls {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
     .tts-player {
         min-width: 280px;
         max-width: 90%;
@@ -449,11 +468,28 @@ button:hover {
             <option value="long">Long</option>
         </select>
 
+        <select id="topic">
+            <option value="daily_life">Daily Life</option>
+            <option value="food_cooking">Food & Cooking</option>
+            <option value="travel">Travel & Tourism</option>
+            <option value="work_business">Work & Business</option>
+            <option value="hobbies">Hobbies & Free Time</option>
+            <option value="weather">Weather & Seasons</option>
+            <option value="family_friends">Family & Friends</option>
+            <option value="health_fitness">Health & Fitness</option>
+            <option value="shopping">Shopping</option>
+            <option value="technology">Technology</option>
+            <option value="education">Education & Learning</option>
+            <option value="culture">German Culture</option>
+            <option value="sports">Sports</option>
+            <option value="random" selected>Random Topic</option>
+        </select>
+
         <select id="model">
-            <option value="openai">openai</option>
             <option value="openai-fast">openai-fast</option>
             <option value="bidara">bidara</option>
             <option value="chickytutor">chickytutor</option>
+            <option value="openai">openai</option>
         </select>
 
         <button onclick="generate()">Generate German Text</button>
@@ -514,6 +550,42 @@ let germanVoice = null;
 let timerInterval = null;
 let startTime = 0;
 let elapsedTime = 0;
+let currentTopic = "";
+
+// List of topics with their display names
+const topics = {
+    "daily_life": "Daily Life",
+    "food_cooking": "Food & Cooking",
+    "travel": "Travel & Tourism",
+    "work_business": "Work & Business",
+    "hobbies": "Hobbies & Free Time",
+    "weather": "Weather & Seasons",
+    "family_friends": "Family & Friends",
+    "health_fitness": "Health & Fitness",
+    "shopping": "Shopping",
+    "technology": "Technology",
+    "education": "Education & Learning",
+    "culture": "German Culture",
+    "sports": "Sports",
+    "random": "Random Topic"
+};
+
+// Topic descriptions for better prompts
+const topicDescriptions = {
+    "daily_life": "daily routines, morning activities, evening activities, typical day",
+    "food_cooking": "German food, cooking recipes, meals, restaurants, traditional dishes",
+    "travel": "traveling in Germany, tourism, visiting cities, transportation",
+    "work_business": "office life, business meetings, professions, career",
+    "hobbies": "free time activities, sports, music, reading, collecting",
+    "weather": "seasons, climate, weather conditions, seasonal activities",
+    "family_friends": "family relationships, friends, social gatherings, celebrations",
+    "health_fitness": "exercise, healthy lifestyle, doctor visits, wellness",
+    "shopping": "shopping experiences, markets, stores, online shopping",
+    "technology": "computers, smartphones, internet, social media, gadgets",
+    "education": "school, university, learning methods, exams, studying",
+    "culture": "German traditions, holidays, customs, arts, music",
+    "sports": "football, winter sports, fitness activities, watching sports"
+};
 
 // Dark mode
 function toggleDarkMode() {
@@ -600,6 +672,7 @@ function saveToLocalStorage(data) {
             timestamp: new Date().toISOString(),
             level: document.getElementById('level').value,
             length: document.getElementById('length').value,
+            topic: currentTopic,
             model: document.getElementById('model').value
         };
         
@@ -633,12 +706,14 @@ function loadLastSaved() {
         // Set dropdowns to saved values
         document.getElementById('level').value = data.level || 'A1';
         document.getElementById('length').value = data.length || 'short';
+        document.getElementById('topic').value = data.topic || 'daily_life';
         document.getElementById('model').value = data.model || 'openai-fast';
         
         // Set global variables
         paragraphText = data.paragraph || "";
         vocab = data.vocabulary || {};
         englishTranslation = data.english_translation || "";
+        currentTopic = data.topic || "";
         
         if (!paragraphText) {
             throw new Error("No paragraph in saved data");
@@ -663,6 +738,30 @@ function loadLastSaved() {
     }
 }
 
+// Get a random topic (excluding "random" option)
+function getRandomTopic() {
+    const topicKeys = Object.keys(topics).filter(key => key !== 'random');
+    const randomIndex = Math.floor(Math.random() * topicKeys.length);
+    return topicKeys[randomIndex];
+}
+
+// Get topic for prompt
+function getTopicForPrompt(selectedTopic) {
+    if (selectedTopic === 'random') {
+        const randomTopic = getRandomTopic();
+        currentTopic = randomTopic;
+        return topicDescriptions[randomTopic] || topics[randomTopic];
+    } else {
+        currentTopic = selectedTopic;
+        return topicDescriptions[selectedTopic] || topics[selectedTopic];
+    }
+}
+
+// Get topic display name
+function getTopicDisplayName(topicKey) {
+    return topics[topicKey] || topicKey;
+}
+
 async function generate() {
     // Check TTS support
     if (!checkTTSsupport()) {
@@ -671,15 +770,20 @@ async function generate() {
     
     const level = document.getElementById("level").value;
     const length = document.getElementById("length").value;
+    const topic = document.getElementById("topic").value;
     const model = document.getElementById("model").value;
+
+    const topicForPrompt = getTopicForPrompt(topic);
+    const topicDisplayName = getTopicDisplayName(currentTopic);
 
     const uid = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 
     const prompt = `Return ONLY valid JSON.
     German level: ${level}
     Length: ${length}
+    Topic: ${topicForPrompt}
 
-    Generate a German paragraph about daily life.
+    Generate a German paragraph about ${topicForPrompt}.
     Create a vocabulary dictionary with ALL important words.
     Also provide the English translation.
 
@@ -697,12 +801,13 @@ async function generate() {
     - Vocabulary must include each and every word from the paragraph
     - Translation should be accurate
     - No explanations outside JSON
+    - Make the paragraph relevant to the topic: ${topicForPrompt}
 
     UID: ${uid}`;
 
     const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=${model}`;
 
-    document.getElementById("output").innerHTML = '<div class="loading">Generating German text with vocabulary and translation...</div>';
+    document.getElementById("output").innerHTML = '<div class="loading">Generating German text about ' + topicDisplayName + '...</div>';
     
     try {
         const res = await fetch(url);
@@ -731,9 +836,14 @@ async function generate() {
         sentences = paragraphText.split(/(?<=[.!?])\s+/).filter(s => s.trim());
         
         // Save to localStorage
-        saveToLocalStorage(data);
+        const saveData = {
+            ...data,
+            topic: currentTopic,
+            topicDisplay: topicDisplayName
+        };
+        saveToLocalStorage(saveData);
         
-        renderAll();
+        renderAll(topicDisplayName);
         
         // Show slim TTS player
         document.getElementById('ttsPlayer').style.display = 'flex';
@@ -752,9 +862,23 @@ async function generate() {
     }
 }
 
-function renderAll() {
+function renderAll(topicName = "") {
     const output = document.getElementById("output");
     output.innerHTML = "";
+
+    // Display topic header if available
+    if (topicName && topicName !== "Random Topic") {
+        const topicHeader = document.createElement("div");
+        topicHeader.style.textAlign = "center";
+        topicHeader.style.marginBottom = "15px";
+        topicHeader.innerHTML = `
+            <h2 style="margin: 0; display: inline-block;">
+                Topic: ${topicName}
+                <span class="topic-indicator">${topicName}</span>
+            </h2>
+        `;
+        output.appendChild(topicHeader);
+    }
 
     // 1. German Paragraph
     const germanDiv = document.createElement("div");
