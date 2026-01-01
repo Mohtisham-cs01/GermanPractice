@@ -364,6 +364,28 @@ button:hover {
     background: #2563eb;
 }
 
+/* Storage indicator */
+.storage-indicator {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #10b981;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    animation: fadeInOut 2s ease-in-out;
+}
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .tts-player {
@@ -402,6 +424,11 @@ button:hover {
     <span id="darkModeIcon">🌙</span>
 </div>
 
+<div class="storage-indicator" id="storageIndicator">
+    <span>💾</span>
+    <span>Saved to local storage</span>
+</div>
+
 <div class="container">
     <h1>🇩🇪 German Reading Practice</h1>
 
@@ -430,6 +457,7 @@ button:hover {
         </select>
 
         <button onclick="generate()">Generate German Text</button>
+        <button onclick="loadLastSaved()" style="background: #10b981;">Load Last Saved</button>
     </div>
 
     <div id="output" class="output">
@@ -564,6 +592,77 @@ function showTTSstatus(message, type = 'info') {
     }, 3000);
 }
 
+// Save data to localStorage
+function saveToLocalStorage(data) {
+    try {
+        const saveData = {
+            ...data,
+            timestamp: new Date().toISOString(),
+            level: document.getElementById('level').value,
+            length: document.getElementById('length').value,
+            model: document.getElementById('model').value
+        };
+        
+        localStorage.setItem('germanReadingPractice_lastGenerated', JSON.stringify(saveData));
+        
+        // Show save indicator
+        const indicator = document.getElementById('storageIndicator');
+        indicator.style.display = 'flex';
+        setTimeout(() => {
+            indicator.style.display = 'none';
+        }, 2000);
+        
+        console.log('Data saved to localStorage');
+    } catch (error) {
+        console.error('Error saving to localStorage:', error);
+    }
+}
+
+// Load last saved data from localStorage
+function loadLastSaved() {
+    try {
+        const savedData = localStorage.getItem('germanReadingPractice_lastGenerated');
+        
+        if (!savedData) {
+            showTTSstatus('No saved data found', 'error');
+            return;
+        }
+        
+        const data = JSON.parse(savedData);
+        
+        // Set dropdowns to saved values
+        document.getElementById('level').value = data.level || 'A1';
+        document.getElementById('length').value = data.length || 'short';
+        document.getElementById('model').value = data.model || 'openai-fast';
+        
+        // Set global variables
+        paragraphText = data.paragraph || "";
+        vocab = data.vocabulary || {};
+        englishTranslation = data.english_translation || "";
+        
+        if (!paragraphText) {
+            throw new Error("No paragraph in saved data");
+        }
+        
+        // Split into sentences for TTS
+        sentences = paragraphText.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+        
+        renderAll();
+        
+        // Show slim TTS player
+        document.getElementById('ttsPlayer').style.display = 'flex';
+        
+        // Reset TTS state
+        stopTTS();
+        
+        showTTSstatus('Loaded from local storage', 'info');
+        
+    } catch (error) {
+        console.error('Error loading from localStorage:', error);
+        showTTSstatus('Error loading saved data', 'error');
+    }
+}
+
 async function generate() {
     // Check TTS support
     if (!checkTTSsupport()) {
@@ -630,6 +729,9 @@ async function generate() {
 
         // Split into sentences for TTS
         sentences = paragraphText.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+        
+        // Save to localStorage
+        saveToLocalStorage(data);
         
         renderAll();
         
@@ -994,6 +1096,12 @@ window.addEventListener('load', () => {
         const voices = speechSynthesis.getVoices();
         findGermanVoice(voices);
         voicesLoaded = true;
+    }
+    
+    // Check if there's saved data on load
+    const savedData = localStorage.getItem('germanReadingPractice_lastGenerated');
+    if (savedData) {
+        console.log('Saved data available in localStorage');
     }
 });
 </script>
