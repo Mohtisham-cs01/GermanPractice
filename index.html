@@ -799,9 +799,11 @@ async function generate() {
 
     Rules:
     - Vocabulary must include each and every word from the paragraph
+    - For each word, provide the appropriate meaning(s) based on context
     - Translation should be accurate
     - No explanations outside JSON
     - Make the paragraph relevant to the topic: ${topicForPrompt}
+    - Include ALL words with their appropriate meaning(s)
 
     UID: ${uid}`;
 
