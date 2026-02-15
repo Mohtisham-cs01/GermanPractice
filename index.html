@@ -357,6 +357,21 @@
         vertical-align: middle;
     }
     .dark-mode .topic-indicator { background: #8b5cf6; }
+
+    #toggleApiKey {
+        font-size: 18px;
+        padding: 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+    #toggleApiKey:hover {
+        background-color: #e5e7eb;
+    }
+
+    .dark-mode #toggleApiKey:hover {
+        background-color: #4b5563;
+    }
     @media (max-width: 768px) {
         .select-row { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
         .key-row { flex-direction: column; }
@@ -431,7 +446,10 @@
 
     <!-- Publishable Key input -->
     <div class="key-row">
-        <input type="password" id="apiKey" placeholder="Enter your Pollinations Publishable Key (required)" value="">
+        <div style="position: relative; flex: 1;">
+            <input type="password" id="apiKey" placeholder="Enter your Pollinations Publishable Key (required)" value="">
+            <span id="toggleApiKey" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;">👁️</span>
+        </div>
         <button id="saveKeyBtn" style="background: #8b5cf6;" onclick="saveApiKey()">Save Key</button>
     </div>
 
@@ -553,6 +571,9 @@
         if (savedKey) {
             document.getElementById('apiKey').value = savedKey;
         }
+
+        // Initialize the toggle functionality after loading the key
+        setupApiKeyToggle();
     }
 
     function showStorageIndicator(message) {
@@ -560,6 +581,30 @@
         ind.innerHTML = `<span>💾</span><span>${message}</span>`;
         ind.style.display = 'flex';
         setTimeout(() => { ind.style.display = 'none'; }, 2000);
+    }
+
+    // -------------------------------------------------------------
+    //   API KEY VISIBILITY TOGGLE
+    // -------------------------------------------------------------
+    function setupApiKeyToggle() {
+        const toggleButton = document.getElementById('toggleApiKey');
+        const apiKeyInput = document.getElementById('apiKey');
+
+        if (toggleButton && apiKeyInput) {
+            let isPasswordVisible = false;
+
+            toggleButton.addEventListener('click', function() {
+                isPasswordVisible = !isPasswordVisible;
+
+                if (isPasswordVisible) {
+                    apiKeyInput.type = 'text';
+                    toggleButton.textContent = '🔒'; // Closed eye icon
+                } else {
+                    apiKeyInput.type = 'password';
+                    toggleButton.textContent = '👁️'; // Open eye icon
+                }
+            });
+        }
     }
 
     // -------------------------------------------------------------
