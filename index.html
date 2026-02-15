@@ -372,6 +372,30 @@
     .dark-mode #toggleApiKey:hover {
         background-color: #4b5563;
     }
+    
+    /* Highlighted Generate Button */
+    #generateBtn {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    #generateBtn:hover {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+        transform: translateY(-2px);
+    }
+    
+    .dark-mode #generateBtn {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    .dark-mode #generateBtn:hover {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+    }
     @media (max-width: 768px) {
         .select-row { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
         .key-row { flex-direction: column; }
@@ -404,18 +428,18 @@
 
     <!-- ====== CONTROLS ====== -->
     <div class="select-row">
-        <select id="level">
+        <select id="level" onchange="saveFormInputs()">
             <option>A1</option> <option>A2</option> <option>B1</option> <option>B1.5</option>
             <option>B2</option> <option>C1</option> <option>C2</option>
         </select>
 
-        <select id="length">
+        <select id="length" onchange="saveFormInputs()">
             <option value="short">Short</option>
             <option value="medium">Medium</option>
             <option value="long">Long</option>
         </select>
 
-        <select id="topic">
+        <select id="topic" onchange="saveFormInputs()">
             <option value="daily_life">Daily Life</option>
             <option value="food_cooking">Food & Cooking</option>
             <option value="travel">Travel & Tourism</option>
@@ -433,7 +457,7 @@
         </select>
 
         <!-- ✅ CORRECT MODEL NAMES – directly from the official documentation -->
-        <select id="model">
+        <select id="model" onchange="saveFormInputs()">
             <option value="nova-fast" selected>Amazon Nova Micro (fast)</option>
             <option value="deepseek">DeepSeek V3.2</option>
             <option value="glm">Z.ai GLM-4.7</option>
@@ -447,14 +471,14 @@
     <!-- Publishable Key input -->
     <div class="key-row">
         <div style="position: relative; flex: 1;">
-            <input type="password" id="apiKey" placeholder="Enter your Pollinations Publishable Key (required)" value="">
+            <input type="password" id="apiKey" placeholder="Enter your Pollinations Publishable Key (required)" value="" onchange="saveFormInputs()">
             <span id="toggleApiKey" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;">👁️</span>
         </div>
         <button id="saveKeyBtn" style="background: #8b5cf6;" onclick="saveApiKey()">Save Key</button>
     </div>
 
     <div class="button-row">
-        <button onclick="generate()" style="flex: 2;">Generate German Text</button>
+        <button id="generateBtn" onclick="generate()" style="flex: 2;">Generate German Text</button>
         <button onclick="loadLastSaved()" style="flex: 1; background: #10b981;">Load Last Saved</button>
     </div>
 
@@ -553,6 +577,38 @@
     }
 
     // -------------------------------------------------------------
+    //   FORM INPUTS MANAGEMENT
+    // -------------------------------------------------------------
+    function saveFormInputs() {
+        const formData = {
+            level: document.getElementById('level').value,
+            length: document.getElementById('length').value,
+            topic: document.getElementById('topic').value,
+            model: document.getElementById('model').value,
+            apiKey: document.getElementById('apiKey').value
+        };
+        
+        localStorage.setItem('germanReadingPractice_formInputs', JSON.stringify(formData));
+    }
+
+    function loadFormInputs() {
+        try {
+            const savedData = localStorage.getItem('germanReadingPractice_formInputs');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                
+                if (formData.level) document.getElementById('level').value = formData.level;
+                if (formData.length) document.getElementById('length').value = formData.length;
+                if (formData.topic) document.getElementById('topic').value = formData.topic;
+                if (formData.model) document.getElementById('model').value = formData.model;
+                if (formData.apiKey) document.getElementById('apiKey').value = formData.apiKey;
+            }
+        } catch (error) {
+            console.error('Error loading form inputs:', error);
+        }
+    }
+
+    // -------------------------------------------------------------
     //   API KEY MANAGEMENT
     // -------------------------------------------------------------
     function saveApiKey() {
@@ -560,9 +616,11 @@
         if (key) {
             localStorage.setItem('pollinations_publishable_key', key);
             showStorageIndicator('API key saved');
+            saveFormInputs(); // Also save to form inputs
         } else {
             localStorage.removeItem('pollinations_publishable_key');
             showStorageIndicator('API key removed');
+            saveFormInputs(); // Also save to form inputs
         }
     }
 
@@ -1048,6 +1106,7 @@
     // -------------------------------------------------------------
     window.addEventListener('load', () => {
         checkTTSsupport();
+        loadFormInputs();  // load saved form inputs first
         loadApiKey();  // load saved publishable key
         if (!localStorage.getItem('pollinations_publishable_key')) {
             document.getElementById("output").innerHTML = `<div class="loading">🔑 Please enter your Pollinations Publishable Key above and click "Generate".</div>`;
