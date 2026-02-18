@@ -459,7 +459,7 @@
         <!-- ✅ CORRECT MODEL NAMES – directly from the official documentation -->
         <select id="model" onchange="saveFormInputs()">
             <option value="nova-fast" selected>Amazon Nova Micro (fast)</option>
-            <option value="deepseek">DeepSeek V3.2</option>
+            <!-- <option value="deepseek">DeepSeek V3.2</option> -->
             <option value="glm">Z.ai GLM-4.7</option>
             <option value="kimi">Moonshot Kimi K2.5</option>
             <option value="mistral">Mistral Small 3.2 24B</option>
@@ -796,9 +796,9 @@
         Create a vocabulary dictionary with ALL important words.
         Also provide the English translation.
 
-        Format:
+        Format of the output not this but like this:
         {
-        "paragraph": "German paragraph text",
+        "paragraph": "German paragraph text here",
         "vocabulary": {
             "word1": "English meaning",
             "compound_word": "English meaning"
@@ -810,9 +810,9 @@
         - Vocabulary must include each and every word from the paragraph
         - For each word, provide the appropriate meaning(s) based on context
         - Translation should be accurate
-        - No explanations outside JSON
         - Make the paragraph relevant to the topic: ${topicForPrompt}
         - Include ALL words with their appropriate meaning(s)
+        - No explanations outside JSON !most important
 
         UID: ${uid}`;
 
@@ -831,7 +831,7 @@
                         content: prompt
                     }
                 ],
-                response_format: { type: "json_object" },
+                // response_format: { type: "json_object" },
                 temperature: 0.7
             };
 
@@ -843,14 +843,15 @@
                 },
                 body: JSON.stringify(requestBody)
             });
-
+            
             if (!response.ok) {
                 let errorText = await response.text();
                 throw new Error(`API error ${response.status}: ${errorText.substring(0,200)}`);
             }
-
+            
             const json = await response.json();
-
+            console.log(json.choices[0].message.content)
+            
             // 6. Extract the assistant's reply
             if (!json.choices || !json.choices[0] || !json.choices[0].message) {
                 throw new Error("Unexpected API response structure");
