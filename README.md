@@ -12,7 +12,7 @@ A simple web application for practicing German vocabulary.
 This application uses the **Pollination API** to fetch language data.  
 To use the app, you need a **publishable API key** from Pollination.
 
-1.  Visit [Pollination's website](https://pollination.ai) (or the appropriate service) and sign up for an account.
+1.  Visit [Pollination's website](https://pollinations.ai) (or the appropriate service) and sign up for an account.
 2.  Navigate to your dashboard and generate a publishable API key.
 3.  In the app, you may need to enter this key in the settings or configuration.  
     *(For development, you can add it to a `.env` file or directly in the code – but remember to keep it secure!)*
